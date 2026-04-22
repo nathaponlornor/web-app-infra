@@ -1,0 +1,50 @@
+name: Terragrunt Apply
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'modules/**'
+      - 'live/**'
+      - '.github/workflows/terraform-*.yml'
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  TF_VERSION: "1.7.0"
+  TG_VERSION: "0.55.0"
+  AWS_REGION: "ap-southeast-1"
+
+jobs:
+  apply:
+    name: Terragrunt Apply
+    runs-on: ubuntu-latest
+    environment: ${{ vars.TF_ENVIRONMENT }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+
+      - name: Setup Terragrunt
+        run: |
+          curl -sL "https://github.com/gruntwork-io/terragrunt/releases/download/v${{ env.TG_VERSION }}/terragrunt_linux_amd64" -o terragrunt
+          chmod +x terragrunt
+          sudo mv terragrunt /usr/local/bin/
+
+      - name: Terragrunt Apply All
+        working-directory: live/${{ vars.TF_ENVIRONMENT }}
+        run: terragrunt run-all apply --terragrunt-non-interactive
