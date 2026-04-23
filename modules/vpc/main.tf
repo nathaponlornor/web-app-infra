@@ -45,6 +45,18 @@ resource "aws_subnet" "private_db" {
   tags = { Name = "${var.project_name}-${var.environment}-private-db-${local.azs[count.index]}" }
 }
 
+# Private Subnets (Application)
+resource "aws_subnet" "private_app" {
+  count             = length(local.azs)
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = cidrsubnet(var.vpc_cidr, 8, count.index + 30)
+  availability_zone = local.azs[count.index]
+
+  tags = { Name = "${var.project_name}-${var.environment}-private-app-${local.azs[count.index]}" }
+}
+
+
+
 # Internet Gateway
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
@@ -81,6 +93,14 @@ resource "aws_route_table_association" "public" {
   subnet_id      = aws_subnet.public[count.index].id
   route_table_id = aws_route_table.public.id
 }
+
+resource "aws_route_table_association" "private_app" {
+  count          = length(local.azs)
+  subnet_id      = aws_subnet.private_app[count.index].id
+  route_table_id = aws_route_table.private.id
+}
+
+
 
 # Private Route Table
 resource "aws_route_table" "private" {
