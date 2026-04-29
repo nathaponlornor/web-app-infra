@@ -19,5 +19,5 @@ inputs = {
   vpc_id            = dependency.vpc.outputs.vpc_id
   public_subnet_ids = dependency.vpc.outputs.public_subnet_ids
   container_port    = 8080
-  ingress_ports     = [80, 443, 8080, 3389, 8088, 22]
+  ingress_ports     = [80, 443, 8080, 3389, 8088, 22, 5432]
 }
