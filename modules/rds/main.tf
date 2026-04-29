@@ -36,9 +36,8 @@ resource "aws_rds_cluster" "main" {
   db_subnet_group_name        = aws_db_subnet_group.main.name
   vpc_security_group_ids      = [aws_security_group.rds.id]
   storage_encrypted           = true
-  deletion_protection         = true
-  skip_final_snapshot         = false
-  final_snapshot_identifier   = "${var.project_name}-${var.environment}-db-final"
+  deletion_protection         = false
+  skip_final_snapshot         = true
 
   tags = { Name = "${var.project_name}-${var.environment}-db" }
 }
