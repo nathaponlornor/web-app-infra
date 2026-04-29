@@ -18,3 +18,9 @@ variable "container_port" {
   type    = number
   default = 8080
 }
+
+variable "ingress_ports" {
+  description = "List of ports to allow inbound traffic on the ALB security group"
+  type        = list(number)
+  default     = [80]
+}
